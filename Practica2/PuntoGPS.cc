@@ -193,19 +193,6 @@ bool PuntoGPS::setDatoExtra(int indice, double valor) {
     return true;
 }
 
-void PuntoGPS::anadirDatoExtra(double nuevoValor) {
-    double*nuevo_array = new double[num_datos_extra+1];
-    for (unsigned int i = 0; i < num_datos_extra; ++i) {
-        nuevo_array[i] = datos_extra[i];
-        }
-    nuevo_array[num_datos_extra] = nuevoValor;
-    num_datos_extra +=1;
-    delete[] datos_extra;
-    datos_extra = nuevo_array;
-
-    
-}
-
 // SOBRECARGA DE OPERADORES -------------------------------
 
 bool PuntoGPS::operator<(const PuntoGPS& otro) const {

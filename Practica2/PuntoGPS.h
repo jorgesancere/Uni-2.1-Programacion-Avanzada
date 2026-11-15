@@ -40,8 +40,6 @@ public:
     int getNumDatosExtra() const; 
     double getDatoExtra(int indice) const;
     bool setDatoExtra(int indice, double valor);
-    
-    void anadirDatoExtra(double nuevoValor);
 
     // Sobrecarga de operadores
     bool operator<(const PuntoGPS& otro) const;
