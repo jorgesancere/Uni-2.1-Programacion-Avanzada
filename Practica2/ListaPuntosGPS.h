@@ -6,17 +6,16 @@
 
 using namespace std;
 
-// ---------------------------------------------------------------
-// NodoLista
-// ---------------------------------------------------------------
 class NodoLista {
 public:
+    // Constructores, asignacion y destructor
     NodoLista();
     NodoLista(NodoLista*, const PuntoGPS&);
     NodoLista(const NodoLista&);
     NodoLista& operator=(const NodoLista&);
     ~NodoLista();
 
+    // Getters y setters
     NodoLista* getSiguiente() const;
     PuntoGPS getPuntoGPS() const;
     void setSiguiente(NodoLista*);
@@ -27,16 +26,15 @@ private:
     PuntoGPS puntoGPS;
 };
 
-// ---------------------------------------------------------------
-// IteradorLista
-// ---------------------------------------------------------------
 class IteradorLista {
 public:
+    // Constructores, asignacion y destructor
     IteradorLista();
     IteradorLista(const IteradorLista&);
     ~IteradorLista();
     IteradorLista& operator=(const IteradorLista&);
 
+    // Avanzar y comparar
     void step();
     bool operator==(const IteradorLista&) const;
     bool operator!=(const IteradorLista&) const;
@@ -47,59 +45,55 @@ private:
     friend class ListaPuntosGPS;
 };
 
-// ---------------------------------------------------------------
-// ListaPuntosGPS (Sesiones 1 a 4)
-// ---------------------------------------------------------------
 class ListaPuntosGPS {
 public:
-    // Forma canónica
+    // Constructores, asignacion y destructor
     ListaPuntosGPS();
     ListaPuntosGPS(const ListaPuntosGPS&);
     ListaPuntosGPS& operator=(const ListaPuntosGPS&);
     ~ListaPuntosGPS();
 
-    // Iteración
+    // Iteradores
     IteradorLista begin() const;
     IteradorLista end() const;
     PuntoGPS getPuntoGPS(IteradorLista) const;
 
-    // Consulta básica
+    // Consultas
     bool esVacia() const;
     int longitud() const;
 
-    // Búsqueda y consulta
+    // Busqueda
     bool existeTimestamp(unsigned long) const;
     IteradorLista buscarPorTimestamp(unsigned long) const;
     int contarMismaUbicacion(const PuntoGPS&) const;
 
-    // Inserción ordenada
+    // Insertar y asignar
     bool insertar(const PuntoGPS&);
 
-    // Modificación de un elemento
     bool asignar(IteradorLista, const PuntoGPS&);
 
-    // Borrado
+    // Borrar
     bool borrarPrimero();
     bool borrarUltimo();
     bool borrar(IteradorLista&);
     bool borrarPorTimestamp(unsigned long);
 
-    // Filtrado (devuelven una lista nueva)
+    // Filtros
     ListaPuntosGPS filtrarRangoTimestamp(unsigned long, unsigned long) const;
     ListaPuntosGPS filtrarDispositivo(const string&) const;
 
-    // Cálculos sobre la trayectoria completa
+    // Trayectoria
     double distanciaTotal() const;
     double velocidadMedia() const;
     double velocidadMaxima() const;
 
-    // Representación
+    // Texto
     string aCadena() const;
 
 private:
     NodoLista* head;
 
-    // Métodos auxiliares (privados, permitidos)
+    // Auxiliares privados
     void vaciar();
     void copiarDesde(const ListaPuntosGPS&);
     void agregarAlFinal(NodoLista*&, const PuntoGPS&);

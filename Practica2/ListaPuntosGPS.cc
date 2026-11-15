@@ -1,26 +1,26 @@
 #include "ListaPuntosGPS.h"
 #include <cmath>
 
-// Tolerancia para comparar ubicaciones (igual que operator== de PuntoGPS)
+// Tolerancia
 static const double EPS_UBICACION = 1e-6;
 
-// ===============================================================
-// NodoLista
-// NUNCA se reserva ni libera memoria de nodos adyacentes aquí.
-// ===============================================================
+// ---- NodoLista ----
 
+// Constructor por defecto
 NodoLista::NodoLista() : siguiente(nullptr), puntoGPS() {
 }
 
+// Constructor sobrecargado
 NodoLista::NodoLista(NodoLista* sig, const PuntoGPS& p)
     : siguiente(sig), puntoGPS(p) {
 }
 
-// Copia superficial del puntero: sin new
+// Constructor de copia
 NodoLista::NodoLista(const NodoLista& n)
     : siguiente(n.siguiente), puntoGPS(n.puntoGPS) {
 }
 
+// Operador de asignacion
 NodoLista& NodoLista::operator=(const NodoLista& n) {
     if (this != &n) {
         siguiente = n.siguiente;
@@ -29,10 +29,11 @@ NodoLista& NodoLista::operator=(const NodoLista& n) {
     return *this;
 }
 
-// Vacío a propósito: un delete siguiente borraría la lista en cascada
+// Destructor
 NodoLista::~NodoLista() {
 }
 
+// Getters y setters
 NodoLista* NodoLista::getSiguiente() const {
     return siguiente;
 }
@@ -49,19 +50,21 @@ void NodoLista::setPuntoGPS(const PuntoGPS& p) {
     puntoGPS = p;
 }
 
-// ===============================================================
-// IteradorLista
-// ===============================================================
+// ---- IteradorLista ----
 
+// Constructor por defecto
 IteradorLista::IteradorLista() : pt(nullptr) {
 }
 
+// Constructor de copia
 IteradorLista::IteradorLista(const IteradorLista& it) : pt(it.pt) {
 }
 
+// Destructor
 IteradorLista::~IteradorLista() {
 }
 
+// Operador de asignacion
 IteradorLista& IteradorLista::operator=(const IteradorLista& it) {
     if (this != &it) {
         pt = it.pt;
@@ -69,12 +72,14 @@ IteradorLista& IteradorLista::operator=(const IteradorLista& it) {
     return *this;
 }
 
+// Avanzar
 void IteradorLista::step() {
     if (pt != nullptr) {
         pt = pt->getSiguiente();
     }
 }
 
+// Comparacion
 bool IteradorLista::operator==(const IteradorLista& it) const {
     return pt == it.pt;
 }
@@ -83,44 +88,43 @@ bool IteradorLista::operator!=(const IteradorLista& it) const {
     return pt != it.pt;
 }
 
-// ===============================================================
-// ListaPuntosGPS: forma canónica (Sesión 3)
-// ===============================================================
+// ---- ListaPuntosGPS ----
 
+// Constructor por defecto
 ListaPuntosGPS::ListaPuntosGPS() : head(nullptr) {
 }
 
-// Copia profunda: un nodo nuevo por cada nodo de la otra lista
+// Constructor de copia
 ListaPuntosGPS::ListaPuntosGPS(const ListaPuntosGPS& otra) : head(nullptr) {
     copiarDesde(otra);
 }
 
+// Operador de asignacion
 ListaPuntosGPS& ListaPuntosGPS::operator=(const ListaPuntosGPS& otra) {
     if (this != &otra) {
-        vaciar();            // 1º liberar lo que había
-        copiarDesde(otra);   // 2º copiar lo nuevo
+        vaciar();
+        copiarDesde(otra);
     }
     return *this;
 }
 
+// Destructor
 ListaPuntosGPS::~ListaPuntosGPS() {
     vaciar();
 }
 
-// ---- auxiliares privados ----
-
-// Libera todos los nodos y deja la lista vacía
+// Auxiliar: vaciar
 void ListaPuntosGPS::vaciar() {
     while (head != nullptr) {
-        NodoLista* aux = head;          // guardo el nodo a borrar
-        head = head->getSiguiente();    // avanzo ANTES de borrar
+        NodoLista* aux = head;
+        head = head->getSiguiente();
         delete aux;
     }
 }
 
-// Supone que la lista está vacía (head == nullptr)
+// Auxiliar: copiar
 void ListaPuntosGPS::copiarDesde(const ListaPuntosGPS& otra) {
-    NodoLista* ultimo = nullptr;   // última posición de MI lista (cola)
+    NodoLista* ultimo = nullptr;
     NodoLista* actual = otra.head;
 
     while (actual != nullptr) {
@@ -129,33 +133,30 @@ void ListaPuntosGPS::copiarDesde(const ListaPuntosGPS& otra) {
     }
 }
 
-// Añade un nodo nuevo tras 'ultimo' (la cola de ESTA lista, o nullptr si
-// está vacía) y actualiza 'ultimo'. Se usa al construir listas ya ordenadas
-// (copia y filtros) para no recorrer la lista en cada inserción.
+// Auxiliar: agregar al final
 void ListaPuntosGPS::agregarAlFinal(NodoLista*& ultimo, const PuntoGPS& p) {
     NodoLista* nuevo = new NodoLista(nullptr, p);
     if (ultimo == nullptr) {
-        head = nuevo;                 // primer nodo
+        head = nuevo;
     } else {
-        ultimo->setSiguiente(nuevo);  // engancho al final
+        ultimo->setSiguiente(nuevo);
     }
     ultimo = nuevo;
 }
 
-// ===============================================================
-// ListaPuntosGPS: iteración y consulta básica (Sesión 1)
-// ===============================================================
-
+// Inicio
 IteradorLista ListaPuntosGPS::begin() const {
     IteradorLista it;
     it.pt = head;
     return it;
 }
 
+// Final
 IteradorLista ListaPuntosGPS::end() const {
-    return IteradorLista();   // pt = nullptr
+    return IteradorLista();
 }
 
+// Obtener punto
 PuntoGPS ListaPuntosGPS::getPuntoGPS(IteradorLista it) const {
     if (it.pt == nullptr) {
         return PuntoGPS();
@@ -163,10 +164,12 @@ PuntoGPS ListaPuntosGPS::getPuntoGPS(IteradorLista it) const {
     return it.pt->getPuntoGPS();
 }
 
+// Es vacia
 bool ListaPuntosGPS::esVacia() const {
     return head == nullptr;
 }
 
+// Longitud
 int ListaPuntosGPS::longitud() const {
     int n = 0;
     NodoLista* actual = head;
@@ -177,10 +180,7 @@ int ListaPuntosGPS::longitud() const {
     return n;
 }
 
-// ===============================================================
-// ListaPuntosGPS: búsqueda y consulta (Sesión 2)
-// ===============================================================
-
+// Buscar por timestamp
 IteradorLista ListaPuntosGPS::buscarPorTimestamp(unsigned long ts) const {
     NodoLista* actual = head;
     while (actual != nullptr) {
@@ -191,17 +191,19 @@ IteradorLista ListaPuntosGPS::buscarPorTimestamp(unsigned long ts) const {
             return it;
         }
         if (tsActual > ts) {
-            break;   // lista ordenada: ya no puede aparecer después
+            break;
         }
         actual = actual->getSiguiente();
     }
     return end();
 }
 
+// Existe timestamp
 bool ListaPuntosGPS::existeTimestamp(unsigned long ts) const {
     return buscarPorTimestamp(ts) != end();
 }
 
+// Contar misma ubicacion
 int ListaPuntosGPS::contarMismaUbicacion(const PuntoGPS& p) const {
     int n = 0;
     NodoLista* actual = head;
@@ -217,23 +219,17 @@ int ListaPuntosGPS::contarMismaUbicacion(const PuntoGPS& p) const {
     return n;
 }
 
-// ===============================================================
-// ListaPuntosGPS: inserción ordenada (Sesión 2)
-// ===============================================================
-
+// Insertar
 bool ListaPuntosGPS::insertar(const PuntoGPS& p) {
     unsigned long ts = p.getTimestamp();
     NodoLista* anterior = nullptr;
     NodoLista* actual = head;
 
-    // Avanzo mientras el nodo actual sea ANTERIOR en el tiempo al nuevo
-    // (el orden de las condiciones importa: primero comprobar nullptr)
     while (actual != nullptr && actual->getPuntoGPS().getTimestamp() < ts) {
         anterior = actual;
         actual = actual->getSiguiente();
     }
 
-    // Duplicado: se comprueba ANTES de reservar memoria
     if (actual != nullptr && actual->getPuntoGPS().getTimestamp() == ts) {
         return false;
     }
@@ -241,17 +237,14 @@ bool ListaPuntosGPS::insertar(const PuntoGPS& p) {
     NodoLista* nuevo = new NodoLista(actual, p);
 
     if (anterior == nullptr) {
-        head = nuevo;                    // va el primero (o lista vacía)
+        head = nuevo;
     } else {
-        anterior->setSiguiente(nuevo);   // va en medio o al final
+        anterior->setSiguiente(nuevo);
     }
     return true;
 }
 
-// ===============================================================
-// ListaPuntosGPS: borrado (Sesión 3)
-// ===============================================================
-
+// Borrar primero
 bool ListaPuntosGPS::borrarPrimero() {
     if (head == nullptr) {
         return false;
@@ -262,16 +255,16 @@ bool ListaPuntosGPS::borrarPrimero() {
     return true;
 }
 
+// Borrar ultimo
 bool ListaPuntosGPS::borrarUltimo() {
     if (head == nullptr) {
         return false;
     }
-    if (head->getSiguiente() == nullptr) {   // un único nodo
+    if (head->getSiguiente() == nullptr) {
         delete head;
         head = nullptr;
         return true;
     }
-    // Me paro en el PENÚLTIMO nodo
     NodoLista* penultimo = head;
     while (penultimo->getSiguiente()->getSiguiente() != nullptr) {
         penultimo = penultimo->getSiguiente();
@@ -281,12 +274,12 @@ bool ListaPuntosGPS::borrarUltimo() {
     return true;
 }
 
+// Borrar con iterador
 bool ListaPuntosGPS::borrar(IteradorLista& it) {
     if (it.pt == nullptr) {
         return false;
     }
 
-    // Busco el nodo y su anterior (lista simplemente enlazada)
     NodoLista* anterior = nullptr;
     NodoLista* actual = head;
     while (actual != nullptr && actual != it.pt) {
@@ -295,35 +288,31 @@ bool ListaPuntosGPS::borrar(IteradorLista& it) {
     }
 
     if (actual == nullptr) {
-        return false;   // el iterador no pertenece a esta lista
+        return false;
     }
 
     if (anterior == nullptr) {
-        head = actual->getSiguiente();               // borro el primero
+        head = actual->getSiguiente();
     } else {
-        anterior->setSiguiente(actual->getSiguiente());   // salto el nodo
+        anterior->setSiguiente(actual->getSiguiente());
     }
     delete actual;
-    it.pt = nullptr;   // el enunciado lo exige
+    it.pt = nullptr;
     return true;
 }
 
+// Borrar por timestamp
 bool ListaPuntosGPS::borrarPorTimestamp(unsigned long ts) {
     IteradorLista it = buscarPorTimestamp(ts);
-    return borrar(it);   // si it == end() (nullptr), borrar devuelve false
+    return borrar(it);
 }
 
-// ===============================================================
-// ListaPuntosGPS: modificación de un elemento (Sesión 4)
-// ===============================================================
-
+// Asignar
 bool ListaPuntosGPS::asignar(IteradorLista it, const PuntoGPS& p) {
     if (it.pt == nullptr) {
         return false;
     }
 
-    // Localizo el nodo y su anterior (también comprueba que el iterador
-    // pertenece a esta lista)
     NodoLista* anterior = nullptr;
     NodoLista* actual = head;
     while (actual != nullptr && actual != it.pt) {
@@ -336,8 +325,6 @@ bool ListaPuntosGPS::asignar(IteradorLista it, const PuntoGPS& p) {
 
     unsigned long ts = p.getTimestamp();
 
-    // Orden estricto respecto al anterior y al siguiente. Como la lista ya
-    // está estrictamente ordenada, esto también garantiza que no hay duplicados.
     if (anterior != nullptr && anterior->getPuntoGPS().getTimestamp() >= ts) {
         return false;
     }
@@ -350,14 +337,11 @@ bool ListaPuntosGPS::asignar(IteradorLista it, const PuntoGPS& p) {
     return true;
 }
 
-// ===============================================================
-// ListaPuntosGPS: filtrado (Sesión 4)
-// ===============================================================
-
+// Filtrar por rango
 ListaPuntosGPS ListaPuntosGPS::filtrarRangoTimestamp(unsigned long inicio,
                                                      unsigned long fin) const {
     ListaPuntosGPS resultado;
-    NodoLista* ultimo = nullptr;   // cola de 'resultado'
+    NodoLista* ultimo = nullptr;
     NodoLista* actual = head;
 
     while (actual != nullptr) {
@@ -370,6 +354,7 @@ ListaPuntosGPS ListaPuntosGPS::filtrarRangoTimestamp(unsigned long inicio,
     return resultado;
 }
 
+// Filtrar por dispositivo
 ListaPuntosGPS ListaPuntosGPS::filtrarDispositivo(const string& dispositivo) const {
     ListaPuntosGPS resultado;
     NodoLista* ultimo = nullptr;
@@ -385,18 +370,15 @@ ListaPuntosGPS ListaPuntosGPS::filtrarDispositivo(const string& dispositivo) con
     return resultado;
 }
 
-// ===============================================================
-// ListaPuntosGPS: cálculos sobre la trayectoria (Sesión 4)
-// ===============================================================
-
+// Distancia total
 double ListaPuntosGPS::distanciaTotal() const {
     if (head == nullptr || head->getSiguiente() == nullptr) {
-        return 0.0;   // menos de 2 puntos
+        return 0.0;
     }
 
     double total = 0.0;
     NodoLista* actual = head;
-    while (actual->getSiguiente() != nullptr) {   // parejas (Pi, Pi+1)
+    while (actual->getSiguiente() != nullptr) {
         PuntoGPS a = actual->getPuntoGPS();
         PuntoGPS b = actual->getSiguiente()->getPuntoGPS();
         total += a.distancia3D(b);
@@ -405,12 +387,12 @@ double ListaPuntosGPS::distanciaTotal() const {
     return total;
 }
 
+// Velocidad media
 double ListaPuntosGPS::velocidadMedia() const {
     if (head == nullptr || head->getSiguiente() == nullptr) {
-        return 0.0;   // menos de 2 puntos
+        return 0.0;
     }
 
-    // Marca temporal del último nodo
     NodoLista* ultimo = head;
     while (ultimo->getSiguiente() != nullptr) {
         ultimo = ultimo->getSiguiente();
@@ -419,18 +401,18 @@ double ListaPuntosGPS::velocidadMedia() const {
     unsigned long tPrimero = head->getPuntoGPS().getTimestamp();
     unsigned long tUltimo = ultimo->getPuntoGPS().getTimestamp();
     if (tUltimo <= tPrimero) {
-        return 0.0;   // diferencia de tiempo nula
+        return 0.0;
     }
 
     return distanciaTotal() / static_cast<double>(tUltimo - tPrimero);
 }
 
+// Velocidad maxima
 double ListaPuntosGPS::velocidadMaxima() const {
     if (head == nullptr || head->getSiguiente() == nullptr) {
-        return 0.0;   // menos de 2 puntos
+        return 0.0;
     }
 
-    // El máximo parte de la primera velocidad calculada
     double maxima = head->getPuntoGPS().velocidad(head->getSiguiente()->getPuntoGPS());
 
     NodoLista* actual = head->getSiguiente();
@@ -446,16 +428,13 @@ double ListaPuntosGPS::velocidadMaxima() const {
     return maxima;
 }
 
-// ===============================================================
-// ListaPuntosGPS: representación (Sesión 2)
-// ===============================================================
-
+// A cadena
 string ListaPuntosGPS::aCadena() const {
     string resultado;
     NodoLista* actual = head;
     while (actual != nullptr) {
         if (actual != head) {
-            resultado += "\n";   // separador ANTES, salvo el primero
+            resultado += "\n";
         }
         resultado += actual->getPuntoGPS().aCadena();
         actual = actual->getSiguiente();
